@@ -38,6 +38,43 @@ reader.open('Behold Brass & Wind 03.caf')
         console.error(error);
     });
 ```
+gulp task
+```coffeescript
+gulp.task 'default', ->
+  gulp.src ["#{$.appleLoopsDir}/**/*.caf"]
+    .pipe data (file) ->
+      data =  appleLoops.read (file.path)
+
+      # categolize using folder
+      folder = $.distDir
+      if data.meta.genre
+        folder += "/#{data.meta.genre.replace('/',' ')}"
+      else
+        folder += '/unkown'
+      if data.meta.category
+        folder += "/#{data.meta.category.replace('/',' ')}"
+      if data.meta.subcategory
+        folder += "/#{data.meta.subcategory.replace('/',' ')}"
+      data.m4aFolder = folder
+
+      # add bpm and key to filename
+      name = path.basename file.path, '.caf'
+      if data.meta.tempo
+        name += " #{data.meta.tempo}bpm"
+      if data.meta.keySignature
+        name += " #{data.meta.keySignature}"
+      if data.meta.keyType
+        name += " #{data.meta.keyType}"
+      name += '.m4a'
+      data.m4aFilePath = folder + '/' + name
+      data
+    .pipe exec [
+      'mkdir -p "<%= file.data.m4aFolder %>"'
+      'afconvert -v -f m4af -d 0 "<%= file.path %>" "<%= file.data.m4aFilePath %>"'
+      ].join ' && '
+    , $.exec.opts
+    .pipe exec.reporter $.exec.reportOpts
+```
 
 example output
 ```javascript

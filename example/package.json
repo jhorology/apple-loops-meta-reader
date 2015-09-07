@@ -1,0 +1,15 @@
+{
+  "name": "example",
+  "version": "0.0.1",
+  "description": "Bulk convert Apple Loops to m4a",
+  "license": "MIT",
+  "devDependencies": {
+    "apple-loops-meta-reader": "git://github.com/jhorology/apple-loops-meta-reader.git#master",
+    "coffee-script": "^1.10.0",
+    "del": "^2.0.1",
+    "gulp": "^3.9.0",
+    "gulp-coffeelint": "^0.5.0",
+    "gulp-data": "^1.2.0",
+    "gulp-exec": "^2.1.1"
+  }
+}
