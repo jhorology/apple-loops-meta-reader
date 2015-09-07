@@ -4,12 +4,12 @@ coffee      = require 'gulp-coffee'
 istanbul    = require 'gulp-istanbul'
 mocha       = require 'gulp-mocha'
 runSequence = require 'run-sequence'
-rimraf      = require 'gulp-rimraf'
+del         = require 'del'
 watch       = require 'gulp-watch'
 mocha       = require 'gulp-mocha'
   
 gulp.task 'coffeelint', ->
-  gulp.src ['./*.coffee']
+  gulp.src ['./*.coffee', './test/*.coffee']
     .pipe coffeelint './coffeelint.json'
     .pipe coffeelint.reporter()
 
@@ -27,9 +27,8 @@ gulp.task 'default', (cb) -> runSequence.apply null, [
 gulp.task 'watch', ->
   gulp.watch './**/*.coffee', ['default']
  
-gulp.task 'clean', ->
-  gulp.src ['./*.js', './**/*~'], read: false
-    .pipe rimraf()
+gulp.task 'clean', (cb) ->
+  del ['./*.js', './**/*~'], force: true, cb
 
 gulp.task 'test', ['default'], ->
   gulp.src './test/*.coffee', read: false

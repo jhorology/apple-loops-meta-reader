@@ -16,17 +16,21 @@ Apple Loops(*.caf) metadata reader for node.js.
 
 ### Usage
 
-- synchronous read operation
+synchronous read operation
 ```javascript
 var reader = require('apple-loops-meta-reader'),
     beautify = require('js-beautify');
-var data = reader.read('/Library/Audio/Apple Loops/Apple/Jam Pack Voices/Vinnie Lyric 29.caf');
+
+var data = reader.read('Behold Brass & Wind 03.caf');
 console.log(beautify(JSON.stringify(data), { indent_size: 2 }));
 ```
 
-- asynchronous read operation
+asynchronous read operation
 ```javascript
-reader.open('/Library/Audio/Apple Loops/Apple/Jam Pack World Music/Eastern Storm Violin 10.caf')
+var reader = require('apple-loops-meta-reader'),
+    beautify = require('js-beautify');
+
+reader.open('Behold Brass & Wind 03.caf')
     .on('data', function(data){
         console.log(beautify(JSON.stringify(data), { indent_size: 2 }));
     })
@@ -35,60 +39,70 @@ reader.open('/Library/Audio/Apple Loops/Apple/Jam Pack World Music/Eastern Storm
     });
 ```
 
-- example output
+example output
 ```javascript
 {
-  "file type": "caff",
-  "file version": 1,
-  "file flags": 0,
-  "audio format": {
-    "sample rate": 44100,
-    "format id": "aac ",
-    "format flags": 0,
-    "bytes per packet": 0,
-    "frames per packet": 1024,
-    "channels per frames": 2,
-    "bits per channel": 0
+  "fileType": "caff",
+  "fileVersion": 1,
+  "fileFlags": 0,
+  "audioFormat": {
+    "sampleRate": 44100,
+    "formatId": "aac ",
+    "formatFlags": 0,
+    "bytesPerPacket": 0,
+    "framesPerPacket": 1024,
+    "channelsPerFrames": 2,
+    "bitsPerChannel": 0
   },
-  "infomation": {},
-  "packet table header": {
-    "number packates": 113,
-    "number valid frames": 113574,
-    "priming frames": 2112,
-    "remainder frames": 26
+  "packetTableHeader": {
+    "numberPackets": 347,
+    "numberValidFrames": 352800,
+    "primingFrames": 2112,
+    "remainderFrames": 416
   },
   "meta": {
-    "beat count": 8,
-    "key signature": "A",
-    "key type": "major",
-    "time signature": "4/4",
-    "category": "Vocals",
-    "subcategory": "Male",
-    "genre": "Rock Blues",
-    "descriptors": ["Single", "Part", "Processed", "Clean", "Cheerful", "Grooving", "Melodic"],
-    "collection": "Jam Pack Voices",
-    "tempo": 186
+    "beatCount": 8,
+    "keySignature": "C#",
+    "keyType": "major",
+    "timeSignature": "4/4",
+    "category": "Horn/Wind",
+    "genre": "Orchestral",
+    "descriptors": ["Ensemble", "Part", "Acoustic", "Dry", "Clean", "Cheerful", "Relaxed", "Grooving", "Melodic"],
+    "tempo": 60
+  },
+  "infomation": {
+    "copyright": "2004 PowerFX Systems AB",
+    "artist": "EgoWorks"
   },
   "transients": {
-    "unknown": "00000000000100000032000100000000",
+    "unknown": "00000000000100000000000000000000",
     "markers": [{
       "unknown": 65536,
-      "frame position": 0
+      "framePosition": 0
     }, {
       "unknown": 65536,
-      "frame position": 24818
+      "framePosition": 20805
     }, {
       "unknown": 65536,
-      "frame position": 40907
+      "framePosition": 40780
     }, {
       "unknown": 65536,
-      "frame position": 47074
+      "framePosition": 61585
     }, {
       "unknown": 65536,
-      "frame position": 78423
+      "framePosition": 176400
     }, {
       "unknown": 65536,
-      "frame position": 113574
+      "framePosition": 192775
+    }, {
+      "unknown": 65536,
+      "framePosition": 212674
+    }, {
+      "unknown": 65536,
+      "framePosition": 235495
+    }, {
+      "unknown": 65536,
+      "framePosition": 352800
     }]
   }
 }

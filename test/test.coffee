@@ -13,16 +13,16 @@ describe 'Apple Loops Meta Reader:', ->
       assert.ok _.isObject data
       assert.ok _.isObject data.meta
       assert.ok _.isUndefined data.meta.tempo
-      assert.ok _.isUndefined data.meta['key signature']
-      assert.ok _.isUndefined data.meta['key type']
+      assert.ok _.isUndefined data.meta.keySignature
+      assert.ok _.isUndefined data.meta.keyType
       
     it 'tempo: 190bpm, key: none, file: DnB Roller Beat.caf', ->
       data = reader.read "#{APPLE_LOOPS_DIR}Jam Pack Remix Tools/DnB Roller Beat.caf"
       assert.ok _.isObject data
       assert.ok _.isObject data.meta
       assert.equal data.meta.tempo, 190
-      assert.ok _.isUndefined data.meta['key signature']
-      assert.ok _.isUndefined data.meta['key type']
+      assert.ok _.isUndefined data.meta.keySignature
+      assert.ok _.isUndefined data.meta.keyType
 
   describe 'Async:', ->
     it 'async read bpm: 60, key: C# major, file: Behold Brass & Wind 03.caf', (done) ->
@@ -31,8 +31,8 @@ describe 'Apple Loops Meta Reader:', ->
           assert.ok _.isObject data
           assert.ok _.isObject data.meta
           assert.equal data.meta.tempo, 60
-          assert.equal data.meta['key signature'], 'C#'
-          assert.equal data.meta['key type'], 'major'
+          assert.equal data.meta.keySignature, 'C#'
+          assert.equal data.meta.keyType, 'major'
           done()
           
     it 'async read bpm: 40, key: D both, file: Eastern Storm Violin 10.caf', (done) ->
@@ -41,8 +41,8 @@ describe 'Apple Loops Meta Reader:', ->
           assert.ok _.isObject data
           assert.ok _.isObject data.meta
           assert.equal data.meta.tempo, 40
-          assert.equal data.meta['key signature'], 'D'
-          assert.equal data.meta['key type'], 'both'
+          assert.equal data.meta.keySignature, 'D'
+          assert.equal data.meta.keyType, 'both'
           done()
           
     it 'async-read tempo: 100bpm, key: A# neither, file: Adversary All.caf', (done) ->
@@ -51,6 +51,6 @@ describe 'Apple Loops Meta Reader:', ->
           assert.ok _.isObject data
           assert.ok _.isObject data.meta
           assert.equal data.meta.tempo, 100
-          assert.equal data.meta['key signature'], 'A#'
-          assert.equal data.meta['key type'], 'neither'
+          assert.equal data.meta.keySignature, 'A#'
+          assert.equal data.meta.keyType, 'neither'
           done()

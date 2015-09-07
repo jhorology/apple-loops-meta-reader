@@ -1,5 +1,5 @@
 (function() {
-  var CHUNK_IDS, META_UUID, Reader, TRASIENTS_UUID, _, _asyncChunks, _audioFormat, _calcTempo, _chunk, _flatToSharp, _header, _information, _metaInformation, _packetTableHeader, _removeSlash, _stringsChunk, _transients, assert, br, events, rc, util,
+  var CHUNK_IDS, META_UUID, Reader, TRASIENTS_UUID, _, _asyncChunks, _audioFormat, _calcTempo, _chunk, _flatToSharp, _header, _information, _metaInformation, _normalize, _packetTableHeader, _removeSlash, _stringsChunk, _transients, assert, br, events, rc, util,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
@@ -138,30 +138,30 @@
     if (fileType !== 'caff') {
       throw new Error("unknown file type. type:" + fileType);
     }
-    data['file type'] = fileType;
-    data['file version'] = buf.readUInt16BE(4);
-    data['file flags'] = buf.readUInt16BE(6);
+    data.fileType = fileType;
+    data.fileVersion = buf.readUInt16BE(4);
+    data.fileFlags = buf.readUInt16BE(6);
     return data;
   };
 
   _chunk = function(id, buf, data) {
     switch (id) {
       case 'desc':
-        data['audio format'] = _audioFormat(buf);
+        data.audioFormat = _audioFormat(buf);
         break;
       case 'info':
-        data['infomation'] = _information(buf);
+        data.infomation = _information(buf);
         break;
       case 'pakt':
-        data['packet table header'] = _packetTableHeader(buf);
+        data.packetTableHeader = _packetTableHeader(buf);
         break;
       case 'uuid':
         switch (buf.toString('hex', 0, 16)) {
           case META_UUID:
-            data['meta'] = _metaInformation(buf.slice(16));
+            data.meta = _metaInformation(buf.slice(16));
             break;
           case TRASIENTS_UUID:
-            data['transients'] = _transients(buf.slice(16));
+            data.transients = _transients(buf.slice(16));
         }
     }
     return data;
@@ -169,13 +169,13 @@
 
   _audioFormat = function(buf) {
     return {
-      'sample rate': buf.readDoubleBE(0),
-      'format id': buf.toString('ascii', 8, 12),
-      'format flags': buf.readUInt32BE(12),
-      'bytes per packet': buf.readUInt32BE(16),
-      'frames per packet': buf.readUInt32BE(20),
-      'channels per frames': buf.readUInt32BE(24),
-      'bits per channel': buf.readUInt32BE(28)
+      sampleRate: buf.readDoubleBE(0),
+      formatId: buf.toString('ascii', 8, 12),
+      formatFlags: buf.readUInt32BE(12),
+      bytesPerPacket: buf.readUInt32BE(16),
+      framesPerPacket: buf.readUInt32BE(20),
+      channelsPerFrames: buf.readUInt32BE(24),
+      bitsPerChannel: buf.readUInt32BE(28)
     };
   };
 
@@ -189,13 +189,13 @@
     if (buf.readUInt32BE(0) !== 0) {
       throw new Error('packets size exceeded the 32bit limit.');
     }
-    obj['number packates'] = buf.readInt32BE(4);
+    obj.numberPackets = buf.readInt32BE(4);
     if (buf.readUInt32BE(8) !== 0) {
       throw new Error('valid frame size exceeded the 32bit limit.');
     }
-    obj['number valid frames'] = buf.readInt32BE(12);
-    obj['priming frames'] = buf.readInt32BE(16);
-    obj['remainder frames'] = buf.readInt32BE(20);
+    obj.numberValidFrames = buf.readInt32BE(12);
+    obj.primingFrames = buf.readInt32BE(16);
+    obj.remainderFrames = buf.readInt32BE(20);
     return obj;
   };
 
@@ -205,8 +205,8 @@
     if (_.isString(obj.descriptors)) {
       obj.descriptors = obj.descriptors.split(',');
     }
-    if (_.isString(obj['beat count'])) {
-      obj['beat count'] = parseInt(obj['beat count'], 10);
+    if (_.isString(obj.beatCount)) {
+      obj.beatCount = parseInt(obj.beatCount, 10);
     }
     return obj;
   };
@@ -228,7 +228,7 @@
         position = buf.readUInt32BE(offset + 8);
         results.push({
           unknown: unknown,
-          'frame position': position
+          framePosition: position
         });
       }
       return results;
@@ -242,44 +242,63 @@
     entries = buf.readUInt32BE(0);
     arry = buf.toString('ascii', 4).split('\0');
     for (i = j = 0, ref = entries; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
-      obj[arry[i * 2]] = arry[i * 2 + 1];
+      obj[_normalize(arry[i * 2])] = arry[i * 2 + 1];
     }
     return obj;
   };
 
+  _normalize = function(arg) {
+    var i, l, out;
+    l = arg.split(' ');
+    out = (function() {
+      var j, ref, results;
+      results = [];
+      for (i = j = 0, ref = l.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
+        results.push("" + (i === 0 ? l[i][0].toLowerCase() : l[i][0].toUpperCase()) + l[i].slice(1));
+      }
+      return results;
+    })();
+    return out.join('');
+  };
+
   _calcTempo = function(data) {
-    var beatCount, denominator, every, numberValidFrames, sampleRate, timeSignature;
-    beatCount = data.meta['beat count'];
-    timeSignature = data.meta['time signature'];
-    numberValidFrames = data['packet table header']['number valid frames'];
-    sampleRate = data['audio format']['sample rate'];
-    every = [_.isNumber(beatCount), _.isString(timeSignature), _.isNumber(numberValidFrames), _.isNumber(sampleRate)];
+    var b, d, every, l, r;
+    every = [_.isObject(data.meta), _.isNumber(data.meta.beatCount), _.isString(data.meta.timeSignature), _.isObject(data.packetTableHeader), _.isNumber(data.packetTableHeader.numberValidFrames), _.isObject(data.audioFormat), _.isNumber(data.audioFormat.sampleRate)];
     if (_.every(every)) {
-      denominator = parseInt(timeSignature.split('/')[1]);
-      data.meta.tempo = Math.floor(sampleRate * beatCount * 240 / denominator / numberValidFrames);
+      r = data.audioFormat.sampleRate;
+      b = data.meta.beatCount;
+      d = parseInt(data.meta.timeSignature.split('/')[1]);
+      l = data.packetTableHeader.numberValidFrames;
+      data.meta.tempo = Math.floor(r * b * 240 / d / l);
     }
     return data;
   };
 
   _flatToSharp = function(data) {
     var keySignature;
-    keySignature = data.meta['key signature'];
-    if (_.isString(keySignature) && keySignature.length === 2 && keySignature.slice(-1) === 'b') {
-      if (keySignature[0] === 'A') {
-        keySignature = 'G#';
-      } else {
-        keySignature = (String.fromCharCode(keySignature.charCodeAt(0) - 1)) + "#";
+    keySignature = data.meta.keySignature;
+    if (_.isString(keySignature) && keySignature.length === 2) {
+      if (keySignature.slice(-1) === 'b') {
+        if (keySignature[0] === 'A') {
+          keySignature = 'G#';
+        } else {
+          keySignature = (String.fromCharCode(keySignature.charCodeAt(0) - 1)) + "#";
+        }
+        data.meta.keySignature = keySignature;
       }
-      data.meta['key signature'] = keySignature;
+      if (keySignature.slice(-1) === 'c') {
+        keySignature = keySignature[0];
+        data.meta.keySignature = keySignature;
+      }
     }
     return data;
   };
 
   _removeSlash = function(data) {
     var genre;
-    genre = data.meta['genre'];
+    genre = data.meta.genre;
     if (_.isString(genre) && genre.indexOf('/') > -1) {
-      data.meta['genre'] = genre.replace('/', ' ');
+      data.meta.genre = genre.replace('/', ' ');
     }
     return data;
   };
