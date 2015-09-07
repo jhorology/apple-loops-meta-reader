@@ -38,7 +38,6 @@ module.exports.read = (p) ->
     buf = rc.sync p, pos, 12
   _calcTempo data
   _flatToSharp data
-  _removeSlash data
 
 
 class Reader extends events
@@ -50,7 +49,6 @@ class Reader extends events
       .on 'close', =>
         _calcTempo data
         _flatToSharp data
-        _removeSlash data
         @emit 'data', data
       .on 'chunk', (id, buf) ->
         try
@@ -276,12 +274,4 @@ _flatToSharp = (data) ->
     if keySignature.slice(-1) is 'c'
       keySignature = keySignature[0]
       data.meta.keySignature = keySignature
-  data
-
-# remove '/' from genre
-# -------------
-_removeSlash = (data) ->
-  genre = data.meta.genre
-  if _.isString(genre) && genre.indexOf('/') > -1
-    data.meta.genre = genre.replace '/', ' '
   data

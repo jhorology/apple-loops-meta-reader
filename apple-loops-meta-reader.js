@@ -1,5 +1,5 @@
 (function() {
-  var CHUNK_IDS, META_UUID, Reader, TRASIENTS_UUID, _, _asyncChunks, _audioFormat, _calcTempo, _chunk, _flatToSharp, _header, _information, _metaInformation, _normalize, _packetTableHeader, _removeSlash, _stringsChunk, _transients, assert, br, events, rc, util,
+  var CHUNK_IDS, META_UUID, Reader, TRASIENTS_UUID, _, _asyncChunks, _audioFormat, _calcTempo, _chunk, _flatToSharp, _header, _information, _metaInformation, _normalize, _packetTableHeader, _stringsChunk, _transients, assert, br, events, rc, util,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
@@ -45,8 +45,7 @@
       buf = rc.sync(p, pos, 12);
     }
     _calcTempo(data);
-    _flatToSharp(data);
-    return _removeSlash(data);
+    return _flatToSharp(data);
   };
 
   Reader = (function(superClass) {
@@ -63,7 +62,6 @@
         return function() {
           _calcTempo(data);
           _flatToSharp(data);
-          _removeSlash(data);
           return _this.emit('data', data);
         };
       })(this)).on('chunk', function(id, buf) {
@@ -290,15 +288,6 @@
         keySignature = keySignature[0];
         data.meta.keySignature = keySignature;
       }
-    }
-    return data;
-  };
-
-  _removeSlash = function(data) {
-    var genre;
-    genre = data.meta.genre;
-    if (_.isString(genre) && genre.indexOf('/') > -1) {
-      data.meta.genre = genre.replace('/', ' ');
     }
     return data;
   };
