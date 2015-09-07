@@ -40,6 +40,12 @@ reader.open('Behold Brass & Wind 03.caf')
 ```
 gulp task
 ```coffeescript
+path        = require 'path'
+gulp        = require 'gulp'
+data        = require 'gulp-data'
+exec        = require 'gulp-exec'
+appleLoops  = require 'apple-loops-meta-reader'
+
 gulp.task 'default', ->
   gulp.src ["#{$.appleLoopsDir}/**/*.caf"]
     .pipe data (file) ->
