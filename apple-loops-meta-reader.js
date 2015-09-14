@@ -1,5 +1,5 @@
 (function() {
-  var CHUNK_IDS, META_UUID, Reader, TRASIENTS_UUID, _, _asyncChunks, _audioFormat, _calcTempo, _chunk, _flatToSharp, _header, _information, _metaInformation, _normalize, _packetTableHeader, _stringsChunk, _transients, assert, br, events, rc, util,
+  var CHUNK_IDS, META_UUID, Reader, TRANSIENTS_UUID, _, _asyncChunks, _audioFormat, _calcTempo, _chunk, _flatToSharp, _header, _information, _metaInformation, _normalize, _packetTableHeader, _stringsChunk, _transients, assert, br, events, rc, util,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
@@ -19,7 +19,7 @@
 
   META_UUID = '29819273b5bf4aefb78d62d1ef90bb2c';
 
-  TRASIENTS_UUID = '0352811b9d5d42e1882d6af61a6b330c';
+  TRANSIENTS_UUID = '0352811b9d5d42e1882d6af61a6b330c';
 
   module.exports.open = function(p, options) {
     return new Reader(p, options);
@@ -148,7 +148,7 @@
         data.audioFormat = _audioFormat(buf);
         break;
       case 'info':
-        data.infomation = _information(buf);
+        data.information = _information(buf);
         break;
       case 'pakt':
         data.packetTableHeader = _packetTableHeader(buf);
@@ -158,7 +158,7 @@
           case META_UUID:
             data.meta = _metaInformation(buf.slice(16));
             break;
-          case TRASIENTS_UUID:
+          case TRANSIENTS_UUID:
             data.transients = _transients(buf.slice(16));
         }
     }
@@ -260,13 +260,14 @@
   };
 
   _calcTempo = function(data) {
-    var b, d, every, l, r;
-    every = [_.isObject(data.meta), _.isNumber(data.meta.beatCount), _.isString(data.meta.timeSignature), _.isObject(data.packetTableHeader), _.isNumber(data.packetTableHeader.numberValidFrames), _.isObject(data.audioFormat), _.isNumber(data.audioFormat.sampleRate)];
-    if (_.every(every)) {
-      r = data.audioFormat.sampleRate;
-      b = data.meta.beatCount;
-      d = parseInt(data.meta.timeSignature.split('/')[1]);
-      l = data.packetTableHeader.numberValidFrames;
+    var b, d, l, r, ref, ref1, ref2, ref3, ref4;
+    b = (ref = data.meta) != null ? ref.beatCount : void 0;
+    d = parseInt((ref1 = data.meta) != null ? (ref2 = ref1.timeSignature) != null ? ref2.split('/')[1] : void 0 : void 0);
+    l = (ref3 = data.packetTableHeader) != null ? ref3.numberValidFrames : void 0;
+    r = (ref4 = data.audioFormat) != null ? ref4.sampleRate : void 0;
+    if (_.every([b, d, l, r], function(num) {
+      return _.isNumber(num);
+    })) {
       data.meta.tempo = Math.floor(r * b * 240 / d / l);
     }
     return data;

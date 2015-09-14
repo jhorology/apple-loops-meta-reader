@@ -1,6 +1,6 @@
 {
   "name": "apple-loops-meta-reader",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Apple Loops(.caf) meta information reader for node.js",
   "author": {
     "name": "jhorology",

@@ -113,7 +113,7 @@ example output
     "descriptors": ["Ensemble", "Part", "Acoustic", "Dry", "Clean", "Cheerful", "Relaxed", "Grooving", "Melodic"],
     "tempo": 60
   },
-  "infomation": {
+  "information": {
     "copyright": "2004 PowerFX Systems AB",
     "artist": "EgoWorks"
   },

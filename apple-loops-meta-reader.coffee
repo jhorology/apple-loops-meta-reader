@@ -13,7 +13,7 @@ CHUNK_IDS = ['desc', 'info', 'uuid', 'pakt']
 # meta info
 META_UUID =  '29819273b5bf4aefb78d62d1ef90bb2c'
 # transient markers
-TRASIENTS_UUID =  '0352811b9d5d42e1882d6af61a6b330c'
+TRANSIENTS_UUID =  '0352811b9d5d42e1882d6af61a6b330c'
 
 module.exports.open = (p, options) ->
   new Reader p, options
@@ -108,14 +108,14 @@ _chunk = (id, buf, data) ->
     when 'desc'
       data.audioFormat = _audioFormat buf
     when 'info'
-      data.infomation = _information buf
+      data.information = _information buf
     when 'pakt'
       data.packetTableHeader = _packetTableHeader buf
     when 'uuid'
       switch buf.toString 'hex', 0, 16
         when META_UUID
           data.meta = _metaInformation buf.slice 16
-        when TRASIENTS_UUID
+        when TRANSIENTS_UUID
           data.transients = _transients buf.slice 16
   data
 
@@ -192,11 +192,6 @@ _metaInformation = (buf) ->
 # parse Transients
 # -------------
 #
-# struct CAFInformation {
-#     UInt8  mKey[kVariableLengthArray];
-#     UInt8  mValue[kVariableLengthArray];
-# }
-#
 _transients = (buf) ->
   obj = {}
   # TODO unknown data
@@ -204,7 +199,7 @@ _transients = (buf) ->
   entries = buf.readUInt32BE 16
   obj.markers =  for i in [0...entries]
     offset = 12 * i + 20
-        # TODO unknown data always '0x00010000' ?
+    # TODO unknown data always '0x00010000' ?
     unknown = buf.readUInt32BE offset
     if buf.readUInt32BE(offset + 4) isnt 0
       throw new Error 'transient frame position exceeded the 32bit limit.'
@@ -243,20 +238,11 @@ _normalize = (arg) ->
 # calculate BPM.
 # -------------
 _calcTempo = (data) ->
-  every = [
-    _.isObject data.meta
-    _.isNumber data.meta.beatCount
-    _.isString data.meta.timeSignature
-    _.isObject data.packetTableHeader
-    _.isNumber data.packetTableHeader.numberValidFrames
-    _.isObject data.audioFormat
-    _.isNumber data.audioFormat.sampleRate
-  ]
-  if _.every(every)
-    r = data.audioFormat.sampleRate
-    b = data.meta.beatCount
-    d = parseInt data.meta.timeSignature.split('/')[1]
-    l = data.packetTableHeader.numberValidFrames
+  b = data.meta?.beatCount
+  d = parseInt data.meta?.timeSignature?.split('/')[1]
+  l = data.packetTableHeader?.numberValidFrames
+  r = data.audioFormat?.sampleRate
+  if _.every([b, d, l, r], (num) -> _.isNumber(num))
     data.meta.tempo = Math.floor (r * b * 240 / d / l)
   data
 
@@ -271,6 +257,7 @@ _flatToSharp = (data) ->
       else
         keySignature = "#{String.fromCharCode(keySignature.charCodeAt(0) - 1)}#"
       data.meta.keySignature = keySignature
+    # some files keySiganture are 'Bc'. what's the meaning of  'c'?
     if keySignature.slice(-1) is 'c'
       keySignature = keySignature[0]
       data.meta.keySignature = keySignature
