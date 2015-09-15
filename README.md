@@ -56,7 +56,7 @@ gulp.task 'default', ->
       if data.meta.genre
         folder += "/#{data.meta.genre.replace('/',' ')}"
       else
-        folder += '/unkown'
+        folder += '/unknown'
       if data.meta.category
         folder += "/#{data.meta.category.replace('/',' ')}"
       if data.meta.subcategory
